@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>订单查看</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+	<script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+    
+    
+    <script type="text/javascript" src="../plugins/angularjs/angular.min.js">  </script>
+<!-- 分页组件开始 -->
+<script src="../plugins/angularjs/pagination.js"></script>
+<link rel="stylesheet" href="../plugins/angularjs/pagination.css">
+<!-- 分页组件结束 -->
+<script type="text/javascript" src="../js/base_pagination.js">  </script>
+<script type="text/javascript" src="../js/service/sellerService.js">  </script>
+<script type="text/javascript" src="../js/service/orderService.js">  </script>
+<script type="text/javascript" src="../js/controller/baseController.js">  </script>
+<script type="text/javascript" src="../js/controller/sellerController.js">  </script>
+    
+    
+</head>
+
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="sellerController" ng-init="findOrderByStatus(4)">
+  <!-- .box-body -->
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">历史订单</h3>
+                    </div>
+
+                    <div class="box-body">
+
+                        <!-- 数据表格 -->
+                        <div class="table-box">
+
+                            <!--工具栏
+                            
+                            <div class="box-tools pull-right">
+                                <div class="has-feedback">
+							        公司名称：<input  >
+									店铺名称： <input  >									
+									<button class="btn btn-default" >查询</button>                                    
+                                </div>
+                            </div>
+                            -->
+                            <!--工具栏/-->
+
+			                  <!--数据列表-->
+			                  <table id="dataList" class="table table-bordered table-striped table-hover dataTable">
+			                      <thead>
+			                          <tr>
+										  <th class="sorting_asc">用户ID</th>
+									      <th class="sorting">订单号</th>
+
+									      <th class="sorting">订单金额</th>
+									      <th class="sorting">下单时间</th>
+									      <th class="sorting">订单状态</th>
+									      <th class="sorting">是否开票 </th>
+					                      <th class="text-center">订单详细</th>
+					                      <th class="text-center">确认开票</th>
+			                          </tr>
+			                      </thead>
+			                      <tbody>
+										<tr ng-repeat="order in orders">
+											<td>{{order.tbOrder.userId}}</td>
+											<td>{{order.tbOrderId}}</td>
+
+											<td>{{order.tbOrder.payment}}</td>
+											<td>{{order.tbOrder.createTime}}</td>
+											<td>待发货</td>
+											<td>{{ticketStatus[order.tbOrder.invoiceType]}}</td>
+											<td class="text-center">                                           
+											<button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#sellerModal" ng-click="findItemListBytbOrderId(order.tbOrderId);findTbOrderByTbOrderId(order.tbOrderId)">详情</button>                                        
+											</td>
+											<td class="text-center">                                           
+											<button type="button" class="btn bg-olive btn-xs" ng-click="updateTbOrderTicketStatus(order.tbOrderId,2,4)">确认开票</button>                                        
+											</td>
+											
+
+										</tr>
+
+									
+			                      </tbody>
+			                  </table>
+			                  <!--数据列表/-->                        
+							     <tm-pagination conf="paginationConf"></tm-pagination>
+							 
+                        </div>
+                        <!-- 数据表格 /-->
+                        
+                        
+                        
+                        
+                     </div>
+                    <!-- /.box-body -->
+                    
+	          
+				
+				
+				
+		<!-- 商家详情 -->
+		<div class="modal fade" id="sellerModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-hidden="true">×</button>
+						<h3 id="myModalLabel">订单详情</h3>
+					</div>
+					<div class="modal-body">
+						<table class="table table-bordered table-striped" width="800px">
+							<tr>
+								<td>商品图片</td> 
+								<td>商品信息</td>
+								<td>商品单价</td>
+								<td>商品数量</td>
+							</tr>
+							<tr ng-repeat="tbOrderItem in itemList">
+								<td><img src="{{tbOrderItem.picPath}}"/ width="80px"></td> 
+								<td>{{tbOrderItem.title}}</td>
+								<td>{{tbOrderItem.price}}</td>
+								<td>{{tbOrderItem.num}}</td>
+							</tr>
+						</table>
+					</div>
+					
+					<div class="modal-header">
+						<h3 id="myModalLabel">收货信息</h3>
+					</div>
+					
+					<div class="modal-body">
+						<table class="table table-bordered table-striped" width="800px">
+								
+							<tr>
+								<td>收货人</td> 
+								<td>{{tbOrder.receiver}}</td>
+							</tr>
+							<tr>
+								<td>收货地址</td> 
+								<td>{{tbOrder.receiverAreaName}}</td>
+							</tr>
+							<tr>
+								<td>联系电话</td> 
+								<td>{{tbOrder.receiverMobile}}</td>
+							</tr>
+						</table>
+					</div>
+					
+					<div class="modal-header">
+						<h3 id="myModalLabel">开票信息</h3>
+					</div>
+					
+					<div class="modal-body">
+						<table class="table table-bordered table-striped" width="800px">		      
+							<tr>
+								<td>社会统一识别号</td> 
+								<td>{{tbOrder.sellerId}}</td>
+							</tr>
+							<tr>
+								<td>企业名称</td>
+								<td>{{tbOrder.buyerMessage}}</td>
+							</tr>
+						</table>
+					</div>
+					
+					
+					<div class="modal-footer">
+						<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">关闭</button>
+					</div>
+				</div>
+			</div>
+		</div><!-- 商家详情 -->
+				
+					    
+                                
+
+	
+	</body>
+
+</html>
